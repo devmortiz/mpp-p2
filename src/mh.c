@@ -4,11 +4,29 @@
 #include <assert.h>
 #include <time.h>
 #include <unistd.h>
+#include <mpi.h>
 
 #include "../include/mh.h"
 
 #define MUTATION_RATE 0.15
 #define PRINT 1
+#define MAX_NODES 2
+#define NGM_DEFAULT 1
+#define NEM_DEFAULT 1
+#define PROCESO_MAESTRO 0
+
+void crear_tipo_datos(int m, MPI_Datatype *individuo_type)
+{
+	int blocklen[2] = {m, 1};
+	MPI_Datatype dtype[2] = { MPI_INT, MPI_DOUBLE };
+	
+	MPI_Aint disp[2];
+	disp[0] = offsetof(Individuo, array_int);
+	disp[1] = offsetof(Individuo, fitness);
+	
+	MPI_Type_create_struct(2, blocklen, disp, dtype, &individuo_type); 
+	MPI_Type_commit(&individuo_type);
+}
 
 int aleatorio(int n) {
 	return (rand() % n);  // genera un numero aleatorio entre 0 y n-1
@@ -57,68 +75,134 @@ int comp_fitness(const void *a, const void *b) {
 	return (*(Individuo **)b)->fitness - (*(Individuo **)a)->fitness;
 }
 
-double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *sol)
-{
-
-  
-
-  	// para reiniciar la secuencia pseudoaleatoria en cada ejecución
-  	srand(time(NULL) + getpid());
-	int i, g, mutation_start;
+void evolucionar(const double *d, int n, int m, int n_gen, int tam_pob, Individuo **poblacion) {
+	int i, mutation_start;
+	// los hijos de los ascendientes mas aptos sustituyen a la ultima mitad de los individuos menos aptos
+	for(i = 0; i < (tam_pob/2) - 1; i += 2) {
+		cruzar(poblacion[i], poblacion[i+1], poblacion[tam_pob/2 + i], poblacion[tam_pob/2 + i + 1], n, m);
+	}
 	
-	// crea poblacion inicial (array de individuos)
-	Individuo **poblacion = (Individuo **) malloc(tam_pob * sizeof(Individuo *));
-	assert(poblacion);
+	// inicia la mutacion a partir de 1/4 de la poblacion
+	mutation_start = tam_pob/4;
 	
-	// crea cada individuo (array de enteros aleatorios)
+	// muta 3/4 partes de la poblacion
+	for(i = mutation_start; i < tam_pob; i++) {
+		mutar(poblacion[i], n, m, MUTATION_RATE);
+	}
+	
+	// recalcula el fitness del individuo
 	for(i = 0; i < tam_pob; i++) {
-		poblacion[i] = (Individuo *) malloc(sizeof(Individuo));
-		memset(poblacion[i], 0, sizeof(Individuo));
-    	poblacion[i]->array_int = crear_individuo(n, m);
-		
-		// calcula el fitness del individuo
 		fitness(d, poblacion[i], n, m);
 	}
 	
 	// ordena individuos segun la funcion de bondad (mayor "fitness" --> mas aptos)
 	qsort(poblacion, tam_pob, sizeof(Individuo *), comp_fitness);
 
+
+	if (PRINT) {
+		printf("Generacion %d - ", g);
+		printf("Fitness = %.0lf - ", (poblacion[0]->fitness));
+	}
+}
+
+double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *sol)
+{
+
+  	// para reiniciar la secuencia pseudoaleatoria en cada ejecución
+  	srand(time(NULL) + getpid());
+	int g;
+	
+	// crea poblacion inicial (array de individuos)
+	Individuo *poblacion = (Individuo *) malloc(tam_pob * sizeof(Individuo));
+	assert(poblacion);
+	
+	// crea cada individuo (array de enteros aleatorios)
+	for(i = 0; i < tam_pob; i++) {
+		/*
+		poblacion[i] = (Individuo *) malloc(sizeof(Individuo));
+		memset(poblacion[i], 0, sizeof(Individuo));
+    	poblacion[i]->array_int = crear_individuo(n, m);
+		
+		// calcula el fitness del individuo
+		fitness(d, poblacion[i], n, m);
+		*/
+		Individuo i;
+		i->array_int = crear_individuo(n, m);
+		fitness(d, &i, n, m);
+		poblacion[i] = i;
+	}
+	
+	// ordena individuos segun la funcion de bondad (mayor "fitness" --> mas aptos)
+	qsort(&poblacion, tam_pob, sizeof(Individuo *), comp_fitness);
+
   
 	double best_fitness = 0;  // El fitness de las últimas 5 iteraciones.
   	int last_change = 0;
+
+	int  np, rank;
+	char msg[32], messages[MAX_NODES][32];
+	int ngm = NGM_DEFAULT;
+	int nem = NEM_DEFAULT;
+	
+	MPI_Status  status;
+	MPI_Request request, *p_requests;
+	
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+	// dividir los individuos entre los procesos
+	Individuo *subpoblacion = (Individuo *) malloc(tam_pob * sizeof(Individuo));
+	assert(subpoblacion);
+	
+	int *distribucion = (int *) malloc(np * sizeof(int));
+	int *desplazamientos = (int *) malloc(np * sizeof(int));
+	int count = 0;
+	double d = tam_pob*1.0/np*1.0;
+	for (int i = 0; i < np; i++) {
+		distribucion[i] = (d*(i+1)-count);
+		desplazamientos[i] = count;
+		count = d*(i+1);
+	}
+
+	MPI_Datatype MPI_individuo_type;
+	crear_tipo_datos(m, &mpi_individuo_type);
+	MPI_Scatterv(poblacion, distribucion, desplazamientos, MPI_individuo_type, subpoblacion, distribucion, MPI_individuo_type, 0, MPI_COMM_WORLD);
+
   	// evoluciona la poblacion durante un numero de generaciones
-	for(g = 0; g < n_gen; g++)
-	{
-    
-		
-    // los hijos de los ascendientes mas aptos sustituyen a la ultima mitad de los individuos menos aptos
-		for(i = 0; i < (tam_pob/2) - 1; i += 2) {
-			cruzar(poblacion[i], poblacion[i+1], poblacion[tam_pob/2 + i], poblacion[tam_pob/2 + i + 1], n, m);
+	for(g = 0; g < n_gen; g++) {
+    	evolucionar(d, n, m, n_gen, tam_pob, subpoblacion);
+		if (g != 0 && g%ngm == 0) {
+			if (rank > 0) {
+				MPI_SEND(subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, MPI_ANY_TAG, MPI_COMM_WORLD);
+				Individuo* nuevos_individuos = (Individuo *) malloc(nem * sizeof(Individuo));
+				MPI_RECV(nuevos_individuos, nem, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, NULL);
+			} else {
+				// nodo maestro
+				Individuo** nuevaPoblacion = (Individuo **) malloc(nem * np * sizeof(Individuo *));
+				// añadir individuos propios
+				for (int p = 1; p < np; p++) {
+					// MPI_RECV(poblacion)
+					// nuevaPoblacion.add(poblacion)
+				}
+				// mezclar(nuevaPoblacion)
+				// subpoblaciones = dividir(nuevaPoblacion, np)
+				for (p = 1; p < np; p++) {
+					// MPI_SEND(poblacion)
+				}
+			}
 		}
-		
-		// inicia la mutacion a partir de 1/4 de la poblacion
-		mutation_start = tam_pob/4;
-		
-		// muta 3/4 partes de la poblacion
-		for(i = mutation_start; i < tam_pob; i++) {
-			mutar(poblacion[i], n, m, MUTATION_RATE);
+  	}
+	// Recibir las poblaciones finales de los demás procesos
+	if (rank > 0) {
+		// MPI_SEND(poblacion)
+	} else {
+		for (int p = 1; p < np; p++) {
+			// MPI_RECV(poblacion)
+			// poblacion.add(poblacion)
 		}
-		
-		// recalcula el fitness del individuo
-		for(i = 0; i < tam_pob; i++) {
-			fitness(d, poblacion[i], n, m);
-		}
-		
-		// ordena individuos segun la funcion de bondad (mayor "fitness" --> mas aptos)
-		qsort(poblacion, tam_pob, sizeof(Individuo *), comp_fitness);
-    
-
-		if (PRINT) {
-			printf("Generacion %d - ", g);
-			printf("Fitness = %.0lf - ", (poblacion[0]->fitness));
-
-    }
-  }
+	}
+	MPI_Finalize();
 	// ordena el array solucion
 	qsort(poblacion[0]->array_int, m, sizeof(int), comp_array_int);
 
@@ -237,3 +321,4 @@ void fitness(const double *d, Individuo *individuo, int n, int m)
 	}
 	individuo->fitness = fitness;
 }
+
