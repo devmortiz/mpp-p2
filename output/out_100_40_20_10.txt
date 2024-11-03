@@ -1,20 +1,26 @@
-El proceso 1 ha enviado este individuo:
-2.000000
-hola5
 El proceso 2 ha recibido 1 datos, el primer individuo es:
-2.000000
+El proceso 1 ha enviado este individuo:
+2
+3
+4
+5.000000
+hola5
+2
+3
+4
+5.000000
 hola5
 Generacion 0 - Fitness = 0 - Generacion 1 - Fitness = 0 - Generacion 2 - Fitness = 0 - Generacion 3 - Fitness = 0 - Generacion 4 - Fitness = 0 - Generacion 5 - Fitness = 0 - Generacion 6 - Fitness = 0 - Generacion 7 - Fitness = 0 - Generacion 8 - Fitness = 0 - Generacion 9 - Fitness = 0 - Generacion 10 - Fitness = 0 - Generacion 11 - Fitness = 0 - Generacion 12 - Fitness = 0 - Generacion 13 - Fitness = 0 - Generacion 14 - Fitness = 0 - Generacion 15 - Fitness = 0 - Generacion 16 - Fitness = 0 - Generacion 17 - Fitness = 0 - Generacion 18 - Fitness = 0 - Generacion 19 - Fitness = 0 - hola6
 Generacion 0 - Fitness = 0 - Generacion 1 - Fitness = 0 - Generacion 2 - Fitness = 0 - Generacion 3 - Fitness = 0 - Generacion 4 - Fitness = 0 - Generacion 5 - Fitness = 0 - Generacion 6 - Fitness = 0 - Generacion 7 - Fitness = 0 - Generacion 8 - Fitness = 0 - Generacion 9 - Fitness = 0 - Generacion 10 - Fitness = 0 - Generacion 11 - Fitness = 0 - Generacion 12 - Fitness = 0 - Generacion 13 - Fitness = 0 - Generacion 14 - Fitness = 0 - Generacion 15 - Fitness = 0 - Generacion 16 - Fitness = 0 - Generacion 17 - Fitness = 0 - Generacion 18 - Fitness = 0 - Generacion 19 - Fitness = 0 - hola6
 hola7
 hola8
-Execution Time: 0.33 sec
+Execution Time: 0.35 sec
 
 Solution: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 Distance: 0.00
 hola7
 hola8
-Execution Time: 0.34 sec
+Execution Time: 0.35 sec
 
 Solution: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 Distance: 0.00

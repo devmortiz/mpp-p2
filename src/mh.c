@@ -17,7 +17,7 @@
 
 void crear_tipo_datos(int m, MPI_Datatype *individuo_type)
 {
-	int blocklen[2] = {m, 1};
+	int blocklen[2] = {3, 1};
 	MPI_Datatype dtype[2] = { MPI_INT, MPI_DOUBLE };
 	
 	MPI_Aint disp[2];
@@ -25,24 +25,6 @@ void crear_tipo_datos(int m, MPI_Datatype *individuo_type)
 	disp[1] = offsetof(Individuo, fitness);
 	
 	MPI_Type_create_struct(2, blocklen, disp, dtype, individuo_type); 
-	MPI_Type_commit(individuo_type);
-}
-
-void crear_tipo_datos2(int m, MPI_Datatype *individuo_type)
-{
-	int blocklen[1] = {1};
-	MPI_Datatype dtype[1] = { MPI_DOUBLE };
-
-	
-	MPI_Aint disp[1];
-	//Individuo2 ind;
-    //MPI_Aint base_address;
-    //MPI_Get_address(&ind, &base_address);
-    //MPI_Get_address(&ind.fitness, &disp[0]);
-	//disp[0] = MPI_Aint_diff(disp[0], base_address);
-	disp[0] = offsetof(Individuo2, fitness);
-	
-	MPI_Type_create_struct(1, blocklen, disp, dtype, individuo_type); 
 	MPI_Type_commit(individuo_type);
 }
 
@@ -133,21 +115,11 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	
 	// crea cada individuo (array de enteros aleatorios)
 	for(i = 0; i < tam_pob; i++) {
-		/*
-		poblacion[i] = (Individuo *) malloc(sizeof(Individuo));
-		memset(poblacion[i], 0, sizeof(Individuo));
-    	poblacion[i]->array_int = crear_individuo(n, m);
-		
-		// calcula el fitness del individuo
-		fitness(d, poblacion[i], n, m);
-		*/
 		Individuo individuo;
 		crear_individuo(n, m, individuo);
 		fitness(d, individuo, n, m);
 		poblacion[i] = individuo;
 	}
-	// printf("array[0]: %d\n", poblacion[0]);
-	// printf("array[1]: %d\n", poblacion[1]);
 	
 	// ordena individuos segun la funcion de bondad (mayor "fitness" --> mas aptos)
 	qsort(&poblacion, tam_pob, sizeof(Individuo *), comp_fitness);
@@ -190,28 +162,35 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	Individuo *nuevos_individuos = (Individuo *) malloc(nem * sizeof(Individuo));
 	assert(nuevos_individuos);
 
-	Individuo2 individuo_prueba;
-	Individuo2 nuevo_individuo_prueba;
+	Individuo individuo_prueba;
+	Individuo nuevo_individuo_prueba;
 
-	individuo_prueba.fitness = 2.0;
+	individuo_prueba.array_int[0] = 2;
+	individuo_prueba.array_int[1] = 3;
+	individuo_prueba.array_int[2] = 4;
+	individuo_prueba.fitness = 5.0;
 
 	MPI_Datatype MPI_individuo_type;
-	MPI_Datatype MPI_individuo2_type;
 	crear_tipo_datos(m, &MPI_individuo_type);
-	crear_tipo_datos2(m, &MPI_individuo2_type);
 	//MPI_Scatterv(poblacion, distribucion, desplazamientos, MPI_individuo_type, subpoblacion, distribucion, MPI_individuo_type, 0, MPI_COMM_WORLD);
 	if(rank == 0) {
-		MPI_Send(&individuo_prueba, 1, MPI_individuo2_type, 1, 0, MPI_COMM_WORLD);
+		MPI_Send(&individuo_prueba, 1, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
 		//MPI_Send(poblacion, nem, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
 		printf("El proceso 1 ha enviado este individuo:\n"); // imprime bien
+		printf("%d\n", individuo_prueba.array_int[0]);
+		printf("%d\n", individuo_prueba.array_int[1]);
+		printf("%d\n", individuo_prueba.array_int[2]);
 		printf("%f\n", individuo_prueba.fitness);
 		
 	} else {
-		MPI_Recv(&nuevo_individuo_prueba, 1, MPI_individuo2_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
+		MPI_Recv(&nuevo_individuo_prueba, 1, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
 		int count;
-		MPI_Get_count(&status, MPI_individuo2_type, &count);
+		MPI_Get_count(&status, MPI_individuo_type, &count);
 		printf("El proceso 2 ha recibido %d datos, el primer individuo es:\n", count); // imprime nem
-		printf("%f\n", nuevo_individuo_prueba.fitness); // imprime 0.000000
+		printf("%d\n", nuevo_individuo_prueba.array_int[0]);
+		printf("%d\n", nuevo_individuo_prueba.array_int[1]);
+		printf("%d\n", nuevo_individuo_prueba.array_int[2]);
+		printf("%f\n", nuevo_individuo_prueba.fitness);
 		/*
 		MPI_Recv(nuevos_individuos, nem, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
 		MPI_Get_count(&status, MPI_individuo_type, &count);
