@@ -162,35 +162,44 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	Individuo *nuevos_individuos = (Individuo *) malloc(nem * sizeof(Individuo));
 	assert(nuevos_individuos);
 
-	Individuo individuo_prueba;
-	Individuo nuevo_individuo_prueba;
+	Individuo *individuo_prueba = (Individuo *) malloc(3 * sizeof(Individuo));
+	assert(individuo_prueba);
+	Individuo *nuevo_individuo_prueba = (Individuo *) malloc(3 * sizeof(Individuo));
+	assert(nuevo_individuo_prueba);
 
-	individuo_prueba.array_int[0] = 2;
-	individuo_prueba.array_int[1] = 3;
-	individuo_prueba.array_int[2] = 4;
-	individuo_prueba.fitness = 5.0;
+	for (int i = 0; i < 3; i++) {
+		individuo_prueba[i].array_int[0] = 2+i;
+		individuo_prueba[i].array_int[1] = 3+i;
+		individuo_prueba[i].array_int[2] = 4+i;
+		individuo_prueba[i].fitness = 5.0;
+	}
+	
 
 	MPI_Datatype MPI_individuo_type;
 	crear_tipo_datos(m, &MPI_individuo_type);
 	//MPI_Scatterv(poblacion, distribucion, desplazamientos, MPI_individuo_type, subpoblacion, distribucion, MPI_individuo_type, 0, MPI_COMM_WORLD);
 	if(rank == 0) {
-		MPI_Send(&individuo_prueba, 1, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
-		//MPI_Send(poblacion, nem, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
-		printf("El proceso 1 ha enviado este individuo:\n"); // imprime bien
-		printf("%d\n", individuo_prueba.array_int[0]);
-		printf("%d\n", individuo_prueba.array_int[1]);
-		printf("%d\n", individuo_prueba.array_int[2]);
-		printf("%f\n", individuo_prueba.fitness);
+		for (int i = 0; i < 3; i++) {
+			MPI_Send(&individuo_prueba[i], 1, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
+			//MPI_Send(poblacion, nem, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
+			printf("El proceso 1 ha enviado este individuo:\n"); // imprime bien
+			printf("%d\n", individuo_prueba[i].array_int[0]);
+			printf("%d\n", individuo_prueba[i].array_int[1]);
+			printf("%d\n", individuo_prueba[i].array_int[2]);
+			printf("%f\n", individuo_prueba[i].fitness);
+		}
 		
 	} else {
-		MPI_Recv(&nuevo_individuo_prueba, 1, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
-		int count;
-		MPI_Get_count(&status, MPI_individuo_type, &count);
-		printf("El proceso 2 ha recibido %d datos, el primer individuo es:\n", count); // imprime nem
-		printf("%d\n", nuevo_individuo_prueba.array_int[0]);
-		printf("%d\n", nuevo_individuo_prueba.array_int[1]);
-		printf("%d\n", nuevo_individuo_prueba.array_int[2]);
-		printf("%f\n", nuevo_individuo_prueba.fitness);
+		for (int i = 0; i < 3; i++) {
+			MPI_Recv(&nuevo_individuo_prueba[i], 1, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
+			int count;
+			MPI_Get_count(&status, MPI_individuo_type, &count);
+			printf("El proceso 2 ha recibido %d datos, el primer individuo es:\n", count); // imprime nem
+			printf("%d\n", nuevo_individuo_prueba[i].array_int[0]);
+			printf("%d\n", nuevo_individuo_prueba[i].array_int[1]);
+			printf("%d\n", nuevo_individuo_prueba[i].array_int[2]);
+			printf("%f\n", nuevo_individuo_prueba[i].fitness);
+		}
 		/*
 		MPI_Recv(nuevos_individuos, nem, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
 		MPI_Get_count(&status, MPI_individuo_type, &count);
