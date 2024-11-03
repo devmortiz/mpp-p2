@@ -2,11 +2,15 @@
 #define _MH
 	
 	typedef struct {
-		int *array_int;
+		int array_int[1000];
 		double fitness;
 	} Individuo;
+	typedef struct {
+		//int *array_int;
+		double fitness;
+	} Individuo2;
 	
-	void cruzar(Individuo *, Individuo *, Individuo *, Individuo *, int, int);
-	void mutar(Individuo *, int, int, int);
-	void fitness(const double *, Individuo *, int, int);
+	void cruzar(Individuo, Individuo, Individuo, Individuo, int, int);
+	void mutar(Individuo, int, int, int);
+	void fitness(const double *, Individuo, int, int);
 #endif

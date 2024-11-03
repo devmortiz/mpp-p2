@@ -5,7 +5,7 @@
 
 #include "../include/io.h"
 
-extern double aplicar_mh(const double *, int, int, int, int, int *);
+extern double aplicar_mh(const double *, int, int, int, int, int *, int, char **);
 
 static double mseconds() {
 	struct timeval t;
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	#endif
 	
 //	Call Metaheuristic
-	double value = aplicar_mh(d, n, m, n_gen, tam_pob, sol);
+	double value = aplicar_mh(d, n, m, n_gen, tam_pob, sol, argc, argv);
 	
 	#ifdef TIME
 		double tf = mseconds();

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-make sec
+make mpi
 
 in_file="../input/igen/in.txt"
 in_file_distances="../input/input"
@@ -17,7 +17,8 @@ while read line ; do
 
 		echo -e
 		echo -n "Executing with: "
-		echo -e "N = "$n" M = "$m" N_GEN = "$gen" TAM_POB = "$tam"		make test_sec N=$n M=$m N_GEN=$gen T_POB=$tam  < "${in_file_distances}_${n}_${m}_${gen}_${tam}.txt"
+		echo -e "N = "$n" M = "$m" N_GEN = "$gen" TAM_POB = "$tam
+				make test_mpi N=$n M=$m N_GEN=$gen T_POB=$tam  < "${in_file_distances}_${n}_${m}_${gen}_${tam}.txt"
 	fi
 done < $in_file
 

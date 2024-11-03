@@ -1,6 +1,6 @@
 # Parámetros: n m n_gen tam_pob. Modificar los valores según se considere oportuno.
-500 200 100 50
-1000 400 200 100
-1500 600 300 150
-200 80 40 20
+# 500 200 100 50
+# 1000 400 200 100
+# 1500 600 300 150
+# 200 80 40 20
 100 40 20 10
