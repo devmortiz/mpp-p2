@@ -14,10 +14,11 @@
 #define NGM_DEFAULT 1
 #define NEM_DEFAULT 1
 #define PROCESO_MAESTRO 0
+#define TAG 0
 
 void crear_tipo_datos(int m, MPI_Datatype *individuo_type)
 {
-	int blocklen[2] = {3, 1};
+	int blocklen[2] = {1000, 1};
 	MPI_Datatype dtype[2] = { MPI_INT, MPI_DOUBLE };
 	
 	MPI_Aint disp[2];
@@ -26,6 +27,40 @@ void crear_tipo_datos(int m, MPI_Datatype *individuo_type)
 	
 	MPI_Type_create_struct(2, blocklen, disp, dtype, individuo_type); 
 	MPI_Type_commit(individuo_type);
+}
+
+// Envía una cantidad "nem" de individuos a un proceso "p"
+void enviarIndividuos(Individuo* poblacion, int nem, int p, MPI_Datatype tipo) {
+	for (int i = 0; i < nem; i++) {
+		MPI_Send(&poblacion[i], 1, tipo, p, TAG, MPI_COMM_WORLD);
+	}
+}
+
+// Recibe una cantidad "nem" de individuos de un proceso "p"
+void recibirIndividuos(Individuo* subpoblacion, int nem, int p, MPI_Datatype tipo) {
+	MPI_Status status;
+	for (int i = 0; i < nem; i++) {
+		MPI_Recv(&subpoblacion[i], 1, tipo, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
+	}
+}
+
+// Obtiene los n individuos con mejor fitness
+void getMejores(Individuo* poblacion, int tam, Individuo* nueva_poblacion, int n) {
+	nueva_poblacion = (Individuo *) malloc(n * sizeof(Individuo));
+	assert(nueva_poblacion);
+	for (int i = 0; i < n; i++) {
+		nueva_poblacion[i] = poblacion[i];
+	}
+}
+
+void ordenar(Individuo** poblacion, int np, int n, Individuo* nueva_poblacion, int nem) {
+	nueva_poblacion = (Individuo *) malloc(nem * sizeof(Individuo));
+	assert(nueva_poblacion);
+	for(int i = 0; i < np; i++) {
+		for(int j = 0; j < n; j++) {
+			//TODO
+		}
+	}
 }
 
 int aleatorio(int n) {
@@ -47,18 +82,18 @@ int find_element(int *array, int end, int element)
 	return found;
 }
 
-void crear_individuo(int n, int m, Individuo individuo)
+void crear_individuo(int n, int m, Individuo *individuo)
 {
 	int i=0, value;
 	
 	// inicializa array de elementos
-	memset(individuo.array_int, -1, m * sizeof(int));
+	memset(individuo->array_int, -1, m * sizeof(int));
 	
 	while(i < m) {
 		value = aleatorio(n);
 		// si el nuevo elemento no está en el array...
-		if(!find_element(individuo.array_int, i, value)) {
-			individuo.array_int[i] = value;  // lo incluimos
+		if(!find_element(individuo->array_int, i, value)) {
+			individuo->array_int[i] = value;  // lo incluimos
 			i++;
 		}
 	}
@@ -90,7 +125,7 @@ void evolucionar(int g, const double *d, int n, int m, int n_gen, int tam_pob, I
 	
 	// recalcula el fitness del individuo
 	for(i = 0; i < tam_pob; i++) {
-		fitness(d, poblacion[i], n, m);
+		fitness(d, &poblacion[i], n, m);
 	}
 	
 	// ordena individuos segun la funcion de bondad (mayor "fitness" --> mas aptos)
@@ -105,7 +140,7 @@ void evolucionar(int g, const double *d, int n, int m, int n_gen, int tam_pob, I
 
 double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *sol, int argc, char** argv)
 {
-  	// para reiniciar la secuencia pseudoaleatoria en cada ejecución
+	// para reiniciar la secuencia pseudoaleatoria en cada ejecución
   	srand(time(NULL) + getpid());
 	int g, i;
 	
@@ -116,8 +151,8 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	// crea cada individuo (array de enteros aleatorios)
 	for(i = 0; i < tam_pob; i++) {
 		Individuo individuo;
-		crear_individuo(n, m, individuo);
-		fitness(d, individuo, n, m);
+		crear_individuo(n, m, &individuo);
+		fitness(d, &individuo, n, m);
 		poblacion[i] = individuo;
 	}
 	
@@ -129,8 +164,8 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	int nem = NEM_DEFAULT;
 
 	MPI_Status status;
-	//MPI_Request request, *p_requests;
-	
+	//MPI_Request *p_requests;
+
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &np);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -139,13 +174,18 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	// dividir los individuos entre los procesos
 	Individuo *subpoblacion = (Individuo *) malloc(tam_pob * sizeof(Individuo));
 	assert(subpoblacion);
+
 	// crea cada individuo (array de enteros aleatorios)
 	for(i = 0; i < tam_pob; i++) {
 		Individuo individuo;
-		crear_individuo(n, m, individuo);
-		fitness(d, individuo, n, m);
+		crear_individuo(n, m, &individuo);
+		fitness(d, &individuo, n, m);
 		subpoblacion[i] = individuo;
 	}
+	qsort(&subpoblacion, tam_pob, sizeof(Individuo *), comp_fitness);
+	
+	MPI_Datatype MPI_individuo_type;
+	crear_tipo_datos(m, &MPI_individuo_type);
 
 	/*
 	int *distribucion = (int *) malloc(np * sizeof(int));
@@ -158,83 +198,84 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 		count = aux*(i+1);
 	}
 	*/
-
-	Individuo *nuevos_individuos = (Individuo *) malloc(nem * sizeof(Individuo));
-	assert(nuevos_individuos);
-
-	Individuo *individuo_prueba = (Individuo *) malloc(3 * sizeof(Individuo));
-	assert(individuo_prueba);
-	Individuo *nuevo_individuo_prueba = (Individuo *) malloc(3 * sizeof(Individuo));
-	assert(nuevo_individuo_prueba);
-
-	for (int i = 0; i < 3; i++) {
-		individuo_prueba[i].array_int[0] = 2+i;
-		individuo_prueba[i].array_int[1] = 3+i;
-		individuo_prueba[i].array_int[2] = 4+i;
-		individuo_prueba[i].fitness = 5.0;
-	}
 	
+	// MPI_Scatterv(poblacion, distribucion, desplazamientos, MPI_individuo_type, subpoblacion, distribucion, MPI_individuo_type, 0, MPI_COMM_WORLD);
 
-	MPI_Datatype MPI_individuo_type;
-	crear_tipo_datos(m, &MPI_individuo_type);
-	//MPI_Scatterv(poblacion, distribucion, desplazamientos, MPI_individuo_type, subpoblacion, distribucion, MPI_individuo_type, 0, MPI_COMM_WORLD);
 	if(rank == 0) {
-		for (int i = 0; i < 3; i++) {
-			MPI_Send(&individuo_prueba[i], 1, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
-			//MPI_Send(poblacion, nem, MPI_individuo_type, 1, 0, MPI_COMM_WORLD);
-			printf("El proceso 1 ha enviado este individuo:\n"); // imprime bien
-			printf("%d\n", individuo_prueba[i].array_int[0]);
-			printf("%d\n", individuo_prueba[i].array_int[1]);
-			printf("%d\n", individuo_prueba[i].array_int[2]);
-			printf("%f\n", individuo_prueba[i].fitness);
+		for (int i = 0; i < tam_pob/np; i++) {
+			MPI_Send(&poblacion[i], 1, MPI_individuo_type, 1, TAG, MPI_COMM_WORLD);
 		}
 		
 	} else {
-		for (int i = 0; i < 3; i++) {
-			MPI_Recv(&nuevo_individuo_prueba[i], 1, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
+		for (int i = 0; i < tam_pob/np; i++) {
+			MPI_Recv(&subpoblacion[i], 1, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
 			int count;
 			MPI_Get_count(&status, MPI_individuo_type, &count);
-			printf("El proceso 2 ha recibido %d datos, el primer individuo es:\n", count); // imprime nem
-			printf("%d\n", nuevo_individuo_prueba[i].array_int[0]);
-			printf("%d\n", nuevo_individuo_prueba[i].array_int[1]);
-			printf("%d\n", nuevo_individuo_prueba[i].array_int[2]);
-			printf("%f\n", nuevo_individuo_prueba[i].fitness);
 		}
-		/*
-		MPI_Recv(nuevos_individuos, nem, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, &status);
-		MPI_Get_count(&status, MPI_individuo_type, &count);
-		printf("El proceso 2 ha recibido %d datos, el primer individuo es:\n", count); // imprime nem
-		printf("%f\n", nuevos_individuos[0].fitness); // imprime 0.000000
-		*/
 	}
 	
-	printf("hola5\n");
 
   	// evoluciona la poblacion durante un numero de generaciones
-	for(g = 0; g < n_gen; g++) {
-    	evolucionar(g, d, n, m, n_gen, tam_pob, subpoblacion);
-		if (g != 0 && g%ngm == 0) {
+	for(g = 0; g < n_gen;) {
+		evolucionar(g, d, n, m, n_gen, tam_pob, subpoblacion);
+		g++;
+		if (g%ngm == 0) {
 			if (rank > 0) {
-				//MPI_Send(subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, MPI_ANY_TAG, MPI_COMM_WORLD);
-				//Individuo* nuevos_individuos = (Individuo *) malloc(nem * sizeof(Individuo));
-				//MPI_Recv(nuevos_individuos, nem, MPI_individuo_type, PROCESO_MAESTRO, 0, MPI_COMM_WORLD, NULL);
+
+				Individuo* nueva_poblacion;
+				getMejores(subpoblacion, tam_pob, nueva_poblacion, nem);
+				//enviarIndividuos(subpoblacion, nem, PROCESO_MAESTRO, MPI_individuo_type);
+				for (int i = 0; i < nem; i++) {
+					MPI_Send(&poblacion[i], 1, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD);
+				}
+
+				Individuo* nuevos_individuos = (Individuo *) malloc(nem * sizeof(Individuo));
+				assert(nuevos_individuos);
+
+				//recibirIndividuos(nuevos_individuos, nem, PROCESO_MAESTRO, MPI_individuo_type);
+				for (int i = 0; i < nem; i++) {
+					MPI_Recv(&nuevos_individuos[i], 1, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
+					printf("El proceso %d ha recibido los siguientes datos:\n", rank);
+					printf("%d\n", subpoblacion[i].array_int[0]);
+					printf("%d\n", subpoblacion[i].array_int[1]);
+					printf("%d\n", subpoblacion[i].array_int[2]);
+					printf("%f\n", subpoblacion[i].fitness);
+				}
+
 			} else {
 				// nodo maestro
-				// Individuo** nuevaPoblacion = (Individuo **) malloc(nem * np * sizeof(Individuo *));
+				Individuo** nuevasPoblaciones = (Individuo **) malloc((np-1) * nem * sizeof(Individuo *));
+				Individuo* nuevaPoblacionAux = (Individuo *) malloc(nem * sizeof(Individuo));
+				assert(nuevasPoblaciones);
 				// añadir individuos propios
 				for (int p = 1; p < np; p++) {
-					// MPI_RECV(poblacion)
-					// nuevaPoblacion.add(poblacion)
+					//recibirIndividuos(nuevasPoblaciones[p-1], nem, p, MPI_individuo_type);
+					for (int i = 0; i < nem; i++) {
+						MPI_Recv(&nuevaPoblacionAux[i], 1, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status);
+						printf("El proceso %d ha recibido los siguientes datos:\n", rank); // imprime nem
+						printf("%d\n", nuevaPoblacionAux[i].array_int[0]);
+						printf("%d\n", nuevaPoblacionAux[i].array_int[1]);
+						printf("%d\n", nuevaPoblacionAux[i].array_int[2]);
+						printf("%f\n", nuevaPoblacionAux[i].fitness);
+					}
+					nuevasPoblaciones[p-1] = nuevaPoblacionAux;
 				}
-				// mezclar(nuevaPoblacion)
-				// subpoblaciones = dividir(nuevaPoblacion, np)
+				Individuo* nuevaPoblacion;
+				ordenar(nuevasPoblaciones, np-1, nem, nuevaPoblacion, nem);
 				for (int p = 1; p < np; p++) {
-					// MPI_SEND(poblacion)
+					//enviarIndividuos(nuevaPoblacion, nem, p, MPI_individuo_type);
+					for (int i = 0; i < nem; i++) {
+						MPI_Send(&poblacion[i], 1, MPI_individuo_type, p, TAG, MPI_COMM_WORLD);
+						printf("El proceso %d ha enviado este individuo:\n", rank); // imprime bien
+						printf("%d\n", poblacion[i].array_int[0]);
+						printf("%d\n", poblacion[i].array_int[1]);
+						printf("%d\n", poblacion[i].array_int[2]);
+						printf("%f\n", poblacion[i].fitness);
+					}
 				}
 			}
 		}
   	}
-	printf("hola6\n");
 	// Recibir las poblaciones finales de los demás procesos
 	if (rank > 0) {
 		// MPI_SEND(poblacion)
@@ -245,7 +286,6 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 		}
 	}
 	MPI_Finalize();
-	printf("hola7\n");
 	// ordena el array solucion
 	qsort(poblacion[0].array_int, m, sizeof(int), comp_array_int);
 
@@ -266,7 +306,6 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	free(poblacion);
 	
 	// devuelve el valor obtenido para el fitness
-	printf("hola8\n");
 	return value;
 }
 
@@ -352,15 +391,14 @@ double distancia_ij(const double *d, int i, int j, int n)
 }
 
 
-void fitness(const double *d, Individuo individuo, int n, int m)
+void fitness(const double *d, Individuo *individuo, int n, int m)
 {
 	// Determina la calidad del individuo calculando la suma de la distancia entre cada par de enteros
   	double fitness = 0;
 	for (int i = 0; i < m; i++) {
 		for (int j = i; j < m; j++) {
-			fitness += distancia_ij(d, individuo.array_int[i], individuo.array_int[j], n);
+			fitness += distancia_ij(d, individuo->array_int[i], individuo->array_int[j], n);
 		}
 	}
-	individuo.fitness = fitness;
+	individuo->fitness = fitness;
 }
-

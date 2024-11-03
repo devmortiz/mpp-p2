@@ -8,5 +8,5 @@
 	
 	void cruzar(Individuo, Individuo, Individuo, Individuo, int, int);
 	void mutar(Individuo, int, int, int);
-	void fitness(const double *, Individuo, int, int);
+	void fitness(const double *, Individuo *, int, int);
 #endif
