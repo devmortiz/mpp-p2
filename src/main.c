@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <sys/time.h>
+#include <mpi.h>
 
 #include "../include/io.h"
 
-extern double aplicar_mh(const double *, int, int, int, int, int *, int, char **);
+extern double aplicar_mh(const double *, int, int, int, int, int *, int, char **, int, int);
 
 static double mseconds() {
 	struct timeval t;
@@ -15,6 +16,11 @@ static double mseconds() {
 
 int main(int argc, char **argv)
 {
+	int np, rank;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
 //	Check Number of Input Args
 	if(argc < 4) {
 		fprintf(stderr,"Ayuda:\n"); 
@@ -33,6 +39,17 @@ int main(int argc, char **argv)
 	
 //	Generate matrix D with distance values among elements
 	double *d = read_distances(n);
+	MPI_Status status;
+
+	if(rank == 0) {
+		for (int p = 1; p < np; p++) {
+			MPI_Send(d, ((n*n-n)/2), MPI_DOUBLE, p, 0, MPI_COMM_WORLD); // repartir el resto
+		}
+
+	} else {
+		MPI_Recv(d, ((n*n-n)/2), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
+	}
+	//printf("Proceso %d, matriz: %f, %f, %f", rank, d[0], d[1], d[2]);
 	
 	#ifdef DEBUG
 //		print_distances(d, n);
@@ -46,7 +63,7 @@ int main(int argc, char **argv)
 	#endif
 	
 //	Call Metaheuristic
-	double value = aplicar_mh(d, n, m, n_gen, tam_pob, sol, argc, argv);
+	double value = aplicar_mh(d, n, m, n_gen, tam_pob, sol, argc, argv, np, rank);
 	
 	#ifdef TIME
 		double tf = mseconds();

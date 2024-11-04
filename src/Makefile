@@ -6,7 +6,7 @@ N =
 M = 
 N_GEN = 
 T_POB = 
-Numpro = 2
+Numpro = 3
 
 
 EXEC = sec
@@ -26,6 +26,9 @@ test_mpi:
 
 valgrind_sec:
 	valgrind --tool=memcheck --leak-check=yes --track-origins=yes --log-file=../valgrind.output ./$(EXEC) $(N) $(M) $(N_GEN) $(T_POB) > $(OUTFILE)_$(N)_$(M)_$(N_GEN)_$(T_POB).txt
+
+valgrind_mpi:
+	valgrind --tool=memcheck --leak-check=yes --track-origins=yes --log-file=../valgrind.output mpirun -np $(Numpro) $(MPI) $(N) $(M) $(N_GEN) $(T_POB) > $(OUTFILE)_$(N)_$(M)_$(N_GEN)_$(T_POB).txt
 
 
 clean:
