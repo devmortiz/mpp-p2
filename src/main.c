@@ -6,7 +6,7 @@
 
 #include "../include/io.h"
 
-#define MODO 2 // 0 = síncrona, 1 = asíncrona, 2 = colectiva
+#define MODO 1 // 0 = síncrona sin paquetes, 1 = síncrona con paquetes, 2 = asíncrona, 3 = colectiva
 
 extern double aplicar_mh(const double *, int, int, int, int, int *, int, char **, int, int, int);
 
@@ -44,14 +44,13 @@ int main(int argc, char **argv)
 	MPI_Status status;
 	MPI_Request p_requests[np];
 
-	if (MODO == 2) {
+	if (MODO == 3) {
 		MPI_Bcast(d, ((n*n-n)/2), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-		//printf("Matriz: %f, %f, %f\n", d[0], d[1], d[2]);
 	}
 	else {
 		if(rank == 0) {
 			for (int p = 1; p < np; p++) {
-				if (MODO == 0)
+				if (MODO == 0 || MODO == 1)
 					MPI_Send(d, ((n*n-n)/2), MPI_DOUBLE, p, 0, MPI_COMM_WORLD); // repartir el resto
 				else {
 					MPI_Isend(d, ((n*n-n)/2), MPI_DOUBLE, p, 0, MPI_COMM_WORLD, &p_requests[rank]); // repartir el resto
@@ -60,7 +59,7 @@ int main(int argc, char **argv)
 			}
 
 		} else {
-			if (MODO == 0)
+			if (MODO == 0 || MODO == 1)
 				MPI_Recv(d, ((n*n-n)/2), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
 			else {
 				MPI_Irecv(d, ((n*n-n)/2), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &p_requests[rank]);
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	//printf("Proceso %d, matriz: %f, %f, %f", rank, d[0], d[1], d[2]);
+	//printf("Proceso %d, matriz: %f, %f, %f\n", rank, d[0], d[1], d[((n*n-n)/2)-1]);
 	
 	#ifdef DEBUG
 //		print_distances(d, n);

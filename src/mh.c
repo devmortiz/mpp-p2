@@ -18,7 +18,7 @@
 
 void crear_tipo_datos(int m, MPI_Datatype *individuo_type)
 {
-	int blocklen[2] = {1000, 1};
+	int blocklen[2] = {400, 1};
 	MPI_Datatype dtype[2] = { MPI_INT, MPI_DOUBLE };
 	
 	MPI_Aint disp[2];
@@ -39,21 +39,22 @@ void imprimirPoblacion(Individuo* poblacion, int n, int m) {
 	}
 }
 
-/*
-void empaquetar(Individuo *individuo, int m, char *buffer) {
+void empaquetar(Individuo *poblacion, int n, int m, char *buffer) {
 	int posicion = 0;
-	MPI_Pack(individuo->array_int, m, MPI_INT, buffer, 4*m+8, &posicion, MPI_COMM_WORLD);
-	MPI_Pack(&individuo->fitness, 1, MPI_DOUBLE, buffer, 4*m+8, &posicion, MPI_COMM_WORLD);
-	
+	for (int i = 0; i < n; i++) {
+		MPI_Pack(poblacion[i].array_int, m, MPI_INT, buffer, n*sizeof(Individuo), &posicion, MPI_COMM_WORLD);
+		MPI_Pack(&poblacion[i].fitness, 1, MPI_DOUBLE, buffer, n*sizeof(Individuo), &posicion, MPI_COMM_WORLD);
+	}
 }
 
-void desempaquetar(char* buffer, int m, Individuo *individuo) {
+void desempaquetar(char* buffer, int n, int m, Individuo *poblacion) {
 	int posicion = 0;
-	MPI_Unpack(buffer, 4*m+8, &posicion, individuo->array_int, m, MPI_INT, MPI_COMM_WORLD);
-	MPI_Unpack(buffer, 4*m+8, &posicion, &individuo->fitness, 1, MPI_DOUBLE, MPI_COMM_WORLD);
+	for (int i = 0; i < n; i++) {
+		MPI_Unpack(buffer, n*sizeof(Individuo), &posicion, poblacion[i].array_int, m, MPI_INT, MPI_COMM_WORLD);
+		MPI_Unpack(buffer, n*sizeof(Individuo), &posicion, &poblacion[i].fitness, 1, MPI_DOUBLE, MPI_COMM_WORLD);
+	}
 	
 }
-*/
 
 int aleatorio(int n) {
 	return (rand() % n);  // genera un numero aleatorio entre 0 y n-1
@@ -100,7 +101,7 @@ int comp_fitness(const void *a, const void *b) {
 	return (*(Individuo *)b).fitness - (*(Individuo *)a).fitness;
 }
 
-double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *sol, int argc, char** argv, int np, int rank, int MODO)
+double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *sol, int argc, char** argv, int np, int rank, const int MODO)
 {
 	int ngm = NGM_DEFAULT;
 	int nem = NEM_DEFAULT;
@@ -149,7 +150,7 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	int tam = distribucion[rank];
 	Individuo subpoblacion[tam];
 	
-	if (MODO == 2) {
+	if (MODO == 3) {
 		MPI_Scatterv(&poblacion, distribucion, desplazamientos, MPI_individuo_type, &subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
 	}
 	else {
@@ -158,14 +159,14 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 				subpoblacion[i] = poblacion[i]; // Guardar su parte
 			}
 			for (int p = 1; p < np; p++) {
-				/* Paquetes
-				char buffer[4*m*distribucion[p]+8];
-				empaquetar(&poblacion[desplazamientos[p]], distribucion[p], m, buffer);
-				MPI_Send(buffer, 4*m*distribucion[p]+8, MPI_PACKED, p, TAG, MPI_COMM_WORLD);
-				*/
 				
 				if (MODO == 0)
-					MPI_Send(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD); // Síncrona
+					MPI_Send(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD);
+				else if (MODO == 1) {
+					char buffer[distribucion[p]*sizeof(Individuo)];
+					empaquetar(&poblacion[desplazamientos[p]], distribucion[p], m, buffer);
+					MPI_Send(&buffer, distribucion[p]*sizeof(Individuo), MPI_PACKED, p, TAG, MPI_COMM_WORLD);
+				}
 				else {
 					MPI_Isend(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 					MPI_Wait(&p_requests[rank], &status);
@@ -173,13 +174,13 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 			}
 
 		} else {
-			/* Paquetes
-			char buffer[4*m*distribucion[rank]+8];
-			MPI_Recv(buffer, 4*m*distribucion[rank]+8, MPI_PACKED, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
-			desempaquetar(buffer, m, subpoblacion);
-			*/
 			if (MODO == 0)
-				MPI_Recv(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status); // Síncrona
+				MPI_Recv(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
+			else if (MODO == 1) {
+					char buffer[tam*sizeof(Individuo)];
+					MPI_Recv(&buffer, tam*sizeof(Individuo), MPI_PACKED, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
+					desempaquetar(buffer, tam, m, subpoblacion);
+				}
 			else {
 				MPI_Irecv(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 				MPI_Wait(&p_requests[rank], &status);
@@ -222,7 +223,7 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 		g++;
 		// Migrar individuos
 		if (g%ngm == 0) {
-			if (MODO == 2) {
+			if (MODO == 3) {
 				Individuo nuevaPoblacion[np*nem];
 				MPI_Gatherv(&subpoblacion, nem, MPI_individuo_type, &nuevaPoblacion, distribucion, desplazamientos, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
 				qsort(nuevaPoblacion, np * nem, sizeof(Individuo), comp_fitness);
@@ -231,13 +232,18 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 					for (int i = 0; i < nem; i++)
 						subpoblacion[i] = nuevaPoblacion[i];
 				}
-				MPI_Bcast(subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
+				MPI_Bcast(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
 			}
 			else {
+				char buffer[nem*sizeof(Individuo)];
 				if (rank != PROCESO_MAESTRO) {
 					// nodos hijos
-					if (MODO == 0) {
+					if (MODO == 0) 
 						MPI_Send(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD); // Síncrona
+					else if (MODO == 1) {
+						
+						empaquetar(subpoblacion, nem, m, buffer);
+						MPI_Send(&buffer, nem*sizeof(Individuo), MPI_PACKED, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD);
 					}
 					else {
 						MPI_Isend(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
@@ -246,6 +252,10 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 					
 					if (MODO == 0)
 						MPI_Recv(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status); // Síncrona
+					else if (MODO == 1) {
+						MPI_Recv(&buffer, nem*sizeof(Individuo), MPI_PACKED, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
+						desempaquetar(buffer, nem, m, subpoblacion);
+					}
 					else {
 						MPI_Irecv(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 						MPI_Wait(&p_requests[rank], &status);
@@ -259,10 +269,13 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 					for (int i = 0; i < nem; i++) {
 						nuevaPoblacion[i] = subpoblacion[i];
 					}
-					// añadir el resto de individuos
 					for (int p = 1; p < np; p++) {
 						if (MODO == 0)
-							MPI_Recv(&nuevaPoblacion[p*nem], nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status); // Síncrona
+							MPI_Recv(&nuevaPoblacion[p*nem], nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status);
+						else if (MODO == 1) {
+							MPI_Recv(&buffer, nem*sizeof(Individuo), MPI_PACKED, p, TAG, MPI_COMM_WORLD, &status);
+							desempaquetar(buffer, nem, m, &nuevaPoblacion[p*nem]);
+						}
 						else {
 							MPI_Irecv(&nuevaPoblacion[p*nem], nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 							MPI_Wait(&p_requests[rank], &status);
@@ -276,7 +289,11 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 
 					for (int p = 1; p < np; p++) {
 						if (MODO == 0)
-							MPI_Send(&nuevaPoblacion, nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD); // Síncrona
+							MPI_Send(&nuevaPoblacion, nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD);
+						else if (MODO == 1) {
+							empaquetar(nuevaPoblacion, nem, m, buffer);
+							MPI_Send(&buffer, nem*sizeof(Individuo), MPI_PACKED, p, TAG, MPI_COMM_WORLD);
+						}
 						else {
 							MPI_Isend(&nuevaPoblacion, nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 							MPI_Wait(&p_requests[rank], &status);
@@ -287,14 +304,19 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 		}
   	}
 	// Recibir las poblaciones finales de los demás procesos
-	if (MODO == 2) {
+	if (MODO == 3) {
 		MPI_Gatherv(&subpoblacion, tam, MPI_individuo_type, &poblacion, distribucion, desplazamientos, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
 		qsort(poblacion, tam_pob, sizeof(Individuo), comp_fitness);
 	}
 	else {
 		if (rank != PROCESO_MAESTRO) {
 			if (MODO == 0)
-				MPI_Send(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD); // Síncrona
+				MPI_Send(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD);
+			else if (MODO == 1) {
+				char buffer[tam*sizeof(Individuo)];
+				empaquetar(subpoblacion, tam, m, buffer);
+				MPI_Send(&buffer, tam*sizeof(Individuo), MPI_PACKED, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD);
+			}
 			else {
 				MPI_Isend(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 				MPI_Wait(&p_requests[rank], &status);
@@ -308,6 +330,11 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 			for (int p = 1; p < np; p++) {
 				if (MODO == 0)
 					MPI_Recv(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status); // Síncrona
+				else if (MODO == 1) {
+					char buffer[distribucion[p]*sizeof(Individuo)];
+					MPI_Recv(&buffer, distribucion[p]*sizeof(Individuo), MPI_PACKED, p, TAG, MPI_COMM_WORLD, &status);
+					desempaquetar(buffer, distribucion[p], m, &poblacion[desplazamientos[p]]);
+				}
 				else {
 					MPI_Irecv(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 					MPI_Wait(&p_requests[rank], &status);

@@ -6,7 +6,7 @@ N =
 M = 
 N_GEN = 
 T_POB = 
-Numpro = 4
+Numpro = 2
 
 EXEC = sec
 MPI = mpi
