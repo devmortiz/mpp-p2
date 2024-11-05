@@ -6,7 +6,9 @@
 
 #include "../include/io.h"
 
-extern double aplicar_mh(const double *, int, int, int, int, int *, int, char **, int, int);
+#define MODO 1 // 0 = síncrona, 1 = asíncrona, 2 = colectiva
+
+extern double aplicar_mh(const double *, int, int, int, int, int *, int, char **, int, int, int);
 
 static double mseconds() {
 	struct timeval t;
@@ -40,14 +42,25 @@ int main(int argc, char **argv)
 //	Generate matrix D with distance values among elements
 	double *d = read_distances(n);
 	MPI_Status status;
+	MPI_Request p_requests[np];
 
 	if(rank == 0) {
 		for (int p = 1; p < np; p++) {
-			MPI_Send(d, ((n*n-n)/2), MPI_DOUBLE, p, 0, MPI_COMM_WORLD); // repartir el resto
+			if (MODO == 0 || MODO == 2)
+				MPI_Send(d, ((n*n-n)/2), MPI_DOUBLE, p, 0, MPI_COMM_WORLD); // repartir el resto
+			else {
+				MPI_Isend(d, ((n*n-n)/2), MPI_DOUBLE, p, 0, MPI_COMM_WORLD, &p_requests[rank]); // repartir el resto
+				MPI_Wait(&p_requests[rank], &status);
+			}
 		}
 
 	} else {
-		MPI_Recv(d, ((n*n-n)/2), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
+		if (MODO == 0 || MODO == 2)
+			MPI_Recv(d, ((n*n-n)/2), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
+		else {
+			MPI_Irecv(d, ((n*n-n)/2), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &p_requests[rank]);
+			MPI_Wait(&p_requests[rank], &status);
+		}
 	}
 	//printf("Proceso %d, matriz: %f, %f, %f", rank, d[0], d[1], d[2]);
 	
@@ -63,7 +76,7 @@ int main(int argc, char **argv)
 	#endif
 	
 //	Call Metaheuristic
-	double value = aplicar_mh(d, n, m, n_gen, tam_pob, sol, argc, argv, np, rank);
+	double value = aplicar_mh(d, n, m, n_gen, tam_pob, sol, argc, argv, np, rank, MODO);
 	
 	#ifdef TIME
 		double tf = mseconds();
