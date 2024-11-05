@@ -1,908 +1,104 @@
-hola1
-hola1
-hola1
-hola2
-hola2
-hola1
-hola2
-hola2
-Generacion 0 - Fitness = 997325.00 - 
-hola3
-Generacion 1 - Fitness = 997325.00 - 
-hola3
-hola3
-hola3
-hola4 2
-hola5
-hola4 1
-hola5
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola6
-hola6
-Generacion 2 - Fitness = 997325.00 - 
-hola3
-Generacion 3 - Fitness = 997325.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola6
-Generacion 4 - Fitness = 997325.00 - 
-hola3
-Generacion 5 - Fitness = 997325.00 - 
-hola3
-hola3
-hola4 2
-hola5
-hola4 1
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola6
-hola3
-hola4 3
-hola5
-hola6
-Generacion 6 - Fitness = 1000451.00 - 
-Generacion 7 - Fitness = 1000451.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola6
-hola4 3
-hola5
-hola6
-Generacion 8 - Fitness = 1000451.00 - 
-Generacion 9 - Fitness = 1000451.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 3
-hola5
-hola4 0
-hola5
-hola6
-hola3
-hola4 2
-hola5
-hola6
-hola6
-hola6
-Generacion 10 - Fitness = 1004964.00 - 
-Generacion 11 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola6
-Generacion 12 - Fitness = 1004964.00 - 
-Generacion 13 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola3
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola6
-Generacion 14 - Fitness = 1004964.00 - 
-Generacion 15 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 3
-hola5
-hola3
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola6
-hola6
-Generacion 16 - Fitness = 1004964.00 - 
-Generacion 17 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola4 3
-hola5
-hola6
-hola3
-hola4 2
-hola5
-hola6
-Generacion 18 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-Generacion 19 - Fitness = 1004964.00 - 
-hola3
-hola4 0
-hola5
-hola6
-hola4 1
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola6
-Generacion 20 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-Generacion 21 - Fitness = 1004964.00 - 
-hola3
-hola4 0
-hola4 1
-hola5
-hola4 3
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola5
-hola6
-hola6
-Generacion 22 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-Generacion 23 - Fitness = 1004964.00 - 
-hola3
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 1
-hola5
-hola6
-Generacion 24 - Fitness = 1004964.00 - 
-Generacion 25 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-hola4 2
-hola5
-hola3
-hola4 1
-hola5
-hola4 3
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola6
-hola6
-Generacion 26 - Fitness = 1004964.00 - 
-Generacion 27 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 2
-hola5
-hola4 0
-hola5
-hola4 3
-hola5
-hola6
-hola6
-hola6
-hola6
-Generacion 28 - Fitness = 1004964.00 - 
-Generacion 29 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola3
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola6
-Generacion 30 - Fitness = 1004964.00 - 
-Generacion 31 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola4 3
-hola5
-hola6
-hola3
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola6
-Generacion 32 - Fitness = 1004964.00 - 
-Generacion 33 - Fitness = 1004964.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola6
-hola3
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-Generacion 34 - Fitness = 1005313.00 - 
-Generacion 35 - Fitness = 1005313.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola3
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-Generacion 36 - Fitness = 1008607.00 - 
-Generacion 37 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-hola4 0
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola3
-hola4 1
-hola5
-hola6
-hola4 3
-hola5
-hola6
-Generacion 38 - Fitness = 1008607.00 - 
-Generacion 39 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 2
-hola5
-hola6
-hola6
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-Generacion 40 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-hola4 2
-hola5
-hola4 1
-hola5
-Generacion 41 - Fitness = 1008607.00 - 
-hola3
-hola4 3
-hola5
-hola6
-hola6
-hola6
-hola4 0
-hola5
-hola6
-Generacion 42 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-Generacion 43 - Fitness = 1008607.00 - 
-hola3
-hola4 1
-hola5
-hola4 3
-hola5
-hola4 0
-hola4 2
-hola5
-hola5
-hola6
-hola6
-hola6
-hola6
-Generacion 44 - Fitness = 1008607.00 - 
-Generacion 45 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola3
-hola4 2
-hola5
-hola6
-hola6
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-Generacion 46 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-Generacion 47 - Fitness = 1008607.00 - 
-hola3
-hola4 1
-hola5
-hola4 3
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola6
-Generacion 48 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-Generacion 49 - Fitness = 1008607.00 - 
-hola3
-hola4 2
-hola5
-hola4 3
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola6
-hola6
-Generacion 50 - Fitness = 1008607.00 - 
-hola3
-Generacion 51 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola4 2
-hola5
-hola4 0
-hola5
-hola6
-hola3
-hola4 3
-hola5
-hola6
-hola6
-hola6
-Generacion 52 - Fitness = 1008607.00 - 
-Generacion 53 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola3
-hola4 3
-hola5
-hola6
-hola6
-hola4 0
-hola5
-hola6
-hola3
-hola4 2
-hola5
-hola6
-Generacion 54 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola4 2
-hola5
-Generacion 55 - Fitness = 1008607.00 - 
-hola3
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola6
-hola6
-Generacion 56 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-Generacion 57 - Fitness = 1008607.00 - 
-hola3
-hola4 2
-hola5
-hola4 1
-hola5
-hola4 0
-hola4 3
-hola5
-hola6
-hola6
-hola6
-hola5
-hola6
-Generacion 58 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-Generacion 59 - Fitness = 1008607.00 - 
-hola3
-hola4 1
-hola5
-hola4 2
-hola5
-hola4 0
-hola4 3
-hola5
-hola6
-hola6
-hola6
-hola5
-hola6
-Generacion 60 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-Generacion 61 - Fitness = 1008607.00 - 
-hola3
-hola4 1
-hola5
-hola4 3
-hola5
-hola6
-hola6
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-Generacion 62 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-Generacion 63 - Fitness = 1008607.00 - 
-hola3
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola4 3
-hola5
-hola6
-hola4 1
-hola5
-hola6
-Generacion 64 - Fitness = 1008607.00 - 
-hola3
-Generacion 65 - Fitness = 1008607.00 - 
-hola3
-hola4 2
-hola5
-hola3
-hola4 1
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola6
-hola3
-hola4 3
-hola5
-hola6
-Generacion 66 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola4 3
-hola5
-hola4 2
-hola5
-Generacion 67 - Fitness = 1008607.00 - 
-hola3
-hola4 0
-hola6
-hola5
-hola6
-hola6
-hola6
-Generacion 68 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-Generacion 69 - Fitness = 1008607.00 - 
-hola3
-hola4 0
-hola4 3
-hola5
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola6
-hola6
-Generacion 70 - Fitness = 1008607.00 - 
-hola3
-hola3
-hola3
-Generacion 71 - Fitness = 1008607.00 - 
-hola3
-hola4 0
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola6
-hola4 1
-hola5
-hola6
-Generacion 72 - Fitness = 1009385.00 - 
-Generacion 73 - Fitness = 1009385.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola6
-hola3
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola3
-hola4 3
-hola5
-hola6
-Generacion 74 - Fitness = 1009385.00 - 
-hola3
-hola3
-hola3
-Generacion 75 - Fitness = 1009385.00 - 
-hola3
-hola4 0
-hola5
-hola4 3
-hola5
-hola6
-hola4 1
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola6
-Generacion 76 - Fitness = 1009385.00 - 
-hola3
-hola3
-Generacion 77 - Fitness = 1009385.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola4 2
-hola5
-hola4 3
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola6
-hola6
-Generacion 78 - Fitness = 1009385.00 - 
-hola3
-Generacion 79 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola4 2
-hola5
-hola6
-hola3
-hola4 1
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola4 3
-hola5
-hola6
-Generacion 80 - Fitness = 1010256.00 - 
-hola3
-Generacion 81 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola4 3
-hola5
-hola4 2
-hola5
-hola3
-hola4 1
-hola5
-hola4 0
-hola5
-hola6
-hola6
-hola6
-hola6
-Generacion 82 - Fitness = 1010256.00 - 
-hola3
-Generacion 83 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola6
-hola4 0
-hola5
-hola6
-Generacion 84 - Fitness = 1010256.00 - 
-Generacion 85 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola4 3
-hola5
-hola6
-Generacion 86 - Fitness = 1010256.00 - 
-hola3
-Generacion 87 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-hola4 3
-hola5
-hola6
-Generacion 88 - Fitness = 1010256.00 - 
-hola3
-Generacion 89 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola4 3
-hola5
-hola6
-hola3
-hola4 1
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 0
-hola5
-hola6
-Generacion 90 - Fitness = 1010256.00 - 
-hola3
-Generacion 91 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola3
-hola4 1
-hola5
-hola4 0
-hola5
-hola6
-hola4 3
-hola5
-hola6
-hola6
-hola4 2
-hola5
-hola6
-Generacion 92 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola3
-Generacion 93 - Fitness = 1010256.00 - 
-hola3
-hola4 3
-hola5
-hola4 0
-hola5
-hola4 1
-hola5
-hola6
-hola6
-hola4 2
-hola5
-hola6
-hola6
-Generacion 94 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola3
-hola4 2
-hola5
-Generacion 95 - Fitness = 1010256.00 - 
-hola3
-hola4 0
-hola5
-hola4 3
-hola5
-hola6
-hola6
-hola6
-hola4 1
-hola5
-hola6
-Generacion 96 - Fitness = 1010256.00 - 
-hola3
-hola3
-Generacion 97 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola4 1
-hola5
-hola4 0
-hola5
-hola6
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola6
-hola6
-Generacion 98 - Fitness = 1010256.00 - 
-hola3
-hola3
-hola3
-Generacion 99 - Fitness = 1010256.00 - 
-hola3
-hola4 2
-hola5
-hola6
-hola4 3
-hola5
-hola6
-hola4 1
-hola5
-hola6
-hola4 0
-hola5
-hola6
+Generacion 0 - Fitness = 996899.00 - 
+Generacion 1 - Fitness = 997076.00 - 
+Generacion 2 - Fitness = 997076.00 - 
+Generacion 3 - Fitness = 997076.00 - 
+Generacion 4 - Fitness = 997076.00 - 
+Generacion 5 - Fitness = 999336.00 - 
+Generacion 6 - Fitness = 999336.00 - 
+Generacion 7 - Fitness = 999336.00 - 
+Generacion 8 - Fitness = 999336.00 - 
+Generacion 9 - Fitness = 1000070.00 - 
+Generacion 10 - Fitness = 1000070.00 - 
+Generacion 11 - Fitness = 1000070.00 - 
+Generacion 12 - Fitness = 1000374.00 - 
+Generacion 13 - Fitness = 1000374.00 - 
+Generacion 14 - Fitness = 1001705.00 - 
+Generacion 15 - Fitness = 1001705.00 - 
+Generacion 16 - Fitness = 1003336.00 - 
+Generacion 17 - Fitness = 1003336.00 - 
+Generacion 18 - Fitness = 1004743.00 - 
+Generacion 19 - Fitness = 1004743.00 - 
+Generacion 20 - Fitness = 1004743.00 - 
+Generacion 21 - Fitness = 1004743.00 - 
+Generacion 22 - Fitness = 1004743.00 - 
+Generacion 23 - Fitness = 1004743.00 - 
+Generacion 24 - Fitness = 1004743.00 - 
+Generacion 25 - Fitness = 1004743.00 - 
+Generacion 26 - Fitness = 1007152.00 - 
+Generacion 27 - Fitness = 1007152.00 - 
+Generacion 28 - Fitness = 1007152.00 - 
+Generacion 29 - Fitness = 1007152.00 - 
+Generacion 30 - Fitness = 1007152.00 - 
+Generacion 31 - Fitness = 1007152.00 - 
+Generacion 32 - Fitness = 1007152.00 - 
+Generacion 33 - Fitness = 1007152.00 - 
+Generacion 34 - Fitness = 1007152.00 - 
+Generacion 35 - Fitness = 1007152.00 - 
+Generacion 36 - Fitness = 1007152.00 - 
+Generacion 37 - Fitness = 1007152.00 - 
+Generacion 38 - Fitness = 1007152.00 - 
+Generacion 39 - Fitness = 1007722.00 - 
+Generacion 40 - Fitness = 1007722.00 - 
+Generacion 41 - Fitness = 1007722.00 - 
+Generacion 42 - Fitness = 1007722.00 - 
+Generacion 43 - Fitness = 1007722.00 - 
+Generacion 44 - Fitness = 1007722.00 - 
+Generacion 45 - Fitness = 1009229.00 - 
+Generacion 46 - Fitness = 1009229.00 - 
+Generacion 47 - Fitness = 1009229.00 - 
+Generacion 48 - Fitness = 1009229.00 - 
+Generacion 49 - Fitness = 1009229.00 - 
+Generacion 50 - Fitness = 1009229.00 - 
+Generacion 51 - Fitness = 1009229.00 - 
+Generacion 52 - Fitness = 1009229.00 - 
+Generacion 53 - Fitness = 1009229.00 - 
+Generacion 54 - Fitness = 1009229.00 - 
+Generacion 55 - Fitness = 1009229.00 - 
+Generacion 56 - Fitness = 1009229.00 - 
+Generacion 57 - Fitness = 1009229.00 - 
+Generacion 58 - Fitness = 1009229.00 - 
+Generacion 59 - Fitness = 1009229.00 - 
+Generacion 60 - Fitness = 1009229.00 - 
+Generacion 61 - Fitness = 1009229.00 - 
+Generacion 62 - Fitness = 1009229.00 - 
+Generacion 63 - Fitness = 1009229.00 - 
+Generacion 64 - Fitness = 1009229.00 - 
+Generacion 65 - Fitness = 1009229.00 - 
+Generacion 66 - Fitness = 1009229.00 - 
+Generacion 67 - Fitness = 1009229.00 - 
+Generacion 68 - Fitness = 1009229.00 - 
+Generacion 69 - Fitness = 1009229.00 - 
+Generacion 70 - Fitness = 1009229.00 - 
+Generacion 71 - Fitness = 1009229.00 - 
+Generacion 72 - Fitness = 1009229.00 - 
+Generacion 73 - Fitness = 1009229.00 - 
+Generacion 74 - Fitness = 1009229.00 - 
+Generacion 75 - Fitness = 1009229.00 - 
+Generacion 76 - Fitness = 1009229.00 - 
+Generacion 77 - Fitness = 1010970.00 - 
+Generacion 78 - Fitness = 1010970.00 - 
+Generacion 79 - Fitness = 1010970.00 - 
+Generacion 80 - Fitness = 1010970.00 - 
+Generacion 81 - Fitness = 1010970.00 - 
+Generacion 82 - Fitness = 1010970.00 - 
+Generacion 83 - Fitness = 1010970.00 - 
+Generacion 84 - Fitness = 1010970.00 - 
+Generacion 85 - Fitness = 1010970.00 - 
+Generacion 86 - Fitness = 1010970.00 - 
+Generacion 87 - Fitness = 1010970.00 - 
+Generacion 88 - Fitness = 1010970.00 - 
+Generacion 89 - Fitness = 1010970.00 - 
+Generacion 90 - Fitness = 1010970.00 - 
+Generacion 91 - Fitness = 1010970.00 - 
+Generacion 92 - Fitness = 1010970.00 - 
+Generacion 93 - Fitness = 1010970.00 - 
+Generacion 94 - Fitness = 1010970.00 - 
+Generacion 95 - Fitness = 1010970.00 - 
+Generacion 96 - Fitness = 1010970.00 - 
+Generacion 97 - Fitness = 1010970.00 - 
+Generacion 98 - Fitness = 1010970.00 - 
+Generacion 99 - Fitness = 1010970.00 - 
+Execution Time: 0.24 sec
+
+Solution: 3 4 5 9 18 21 35 36 37 38 47 49 50 53 59 60 62 63 66 70 71 76 78 79 81 83 85 86 88 94 101 102 105 106 108 111 112 113 115 117 120 121 129 131 134 136 138 143 147 149 154 155 157 159 162 163 166 167 168 171 172 178 180 182 184 186 187 188 191 192 194 196 200 203 205 206 212 213 216 218 221 222 225 227 229 230 236 239 246 247 251 252 253 257 258 259 260 261 262 263 268 271 273 274 275 276 277 279 282 290 291 292 293 298 300 301 305 308 315 318 320 325 327 329 331 333 335 336 337 338 339 341 345 347 352 353 354 357 359 361 363 364 366 371 373 375 377 380 381 382 383 385 386 389 390 392 395 402 403 405 408 411 412 420 426 428 429 430 433 436 439 440 441 442 443 444 445 446 447 451 453 454 455 461 463 465 471 475 478 479 481 482 485 487 488 489 494 495 496 497 
+Distance: 1010970.00

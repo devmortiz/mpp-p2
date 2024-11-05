@@ -149,38 +149,41 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 	int tam = distribucion[rank];
 	Individuo subpoblacion[tam];
 	
-	// MPI_Scatterv(poblacion, distribucion, desplazamientos, MPI_individuo_type, subpoblacion, distribucion, MPI_individuo_type, 0, MPI_COMM_WORLD);
-	
-	if(rank == 0) {
-		for (int i = 0; i < tam; i++) {
-			subpoblacion[i] = poblacion[i]; // Guardar su parte
-		}
-		for (int p = 1; p < np; p++) {
+	if (MODO == 2) {
+		MPI_Scatterv(&poblacion, distribucion, desplazamientos, MPI_individuo_type, &subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
+	}
+	else {
+		if(rank == PROCESO_MAESTRO) {
+			for (int i = 0; i < tam; i++) {
+				subpoblacion[i] = poblacion[i]; // Guardar su parte
+			}
+			for (int p = 1; p < np; p++) {
+				/* Paquetes
+				char buffer[4*m*distribucion[p]+8];
+				empaquetar(&poblacion[desplazamientos[p]], distribucion[p], m, buffer);
+				MPI_Send(buffer, 4*m*distribucion[p]+8, MPI_PACKED, p, TAG, MPI_COMM_WORLD);
+				*/
+				
+				if (MODO == 0)
+					MPI_Send(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD); // Síncrona
+				else {
+					MPI_Isend(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+					MPI_Wait(&p_requests[rank], &status);
+				}
+			}
+
+		} else {
 			/* Paquetes
-			char buffer[4*m*distribucion[p]+8];
-			empaquetar(&poblacion[desplazamientos[p]], distribucion[p], m, buffer);
-			MPI_Send(buffer, 4*m*distribucion[p]+8, MPI_PACKED, p, TAG, MPI_COMM_WORLD);
+			char buffer[4*m*distribucion[rank]+8];
+			MPI_Recv(buffer, 4*m*distribucion[rank]+8, MPI_PACKED, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
+			desempaquetar(buffer, m, subpoblacion);
 			*/
-			
 			if (MODO == 0)
-				MPI_Send(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD); // Síncrona
+				MPI_Recv(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status); // Síncrona
 			else {
-				MPI_Isend(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+				MPI_Irecv(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 				MPI_Wait(&p_requests[rank], &status);
 			}
-		}
-
-	} else {
-		/* Paquetes
-		char buffer[4*m*distribucion[rank]+8];
-		MPI_Recv(buffer, 4*m*distribucion[rank]+8, MPI_PACKED, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status);
-		desempaquetar(buffer, m, subpoblacion);
-		*/
-		if (MODO == 0)
-			MPI_Recv(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status); // Síncrona
-		else {
-			MPI_Irecv(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
-			MPI_Wait(&p_requests[rank], &status);
 		}
 	}
 	
@@ -211,7 +214,7 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 		// ordena individuos segun la funcion de bondad (mayor "fitness" --> mas aptos)
 		qsort(subpoblacion, tam, sizeof(Individuo), comp_fitness);
 
-		if (PRINT && rank == 0) {
+		if (PRINT && rank == PROCESO_MAESTRO) {
 			printf("Generacion %d - ", g);
 			printf("Fitness = %.2lf - \n", (subpoblacion[0].fitness));
 		}
@@ -219,85 +222,104 @@ double aplicar_mh(const double *d, int n, int m, int n_gen, int tam_pob, int *so
 		g++;
 		// Migrar individuos
 		if (g%ngm == 0) {
-			if (rank > 0) {
-				// nodos hijos
-				if (MODO == 0) {
-					MPI_Send(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD); // Síncrona
-				}
-				else {
-					MPI_Isend(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
-					MPI_Wait(&p_requests[rank], &status);
-				}
-				
-				if (MODO == 0)
-					MPI_Recv(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status); // Síncrona
-				else {
-					MPI_Irecv(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
-					MPI_Wait(&p_requests[rank], &status);
-				}
-
-			} else {
-				// nodo maestro
+			if (MODO == 2) {
 				Individuo nuevaPoblacion[np*nem];
-
-				// añadir individuos propios
-				for (int i = 0; i < nem; i++) {
-					nuevaPoblacion[i] = subpoblacion[i];
-				}
-				// añadir el resto de individuos
-				for (int p = 1; p < np; p++) {
-					if (MODO == 0)
-						MPI_Recv(&nuevaPoblacion[p*nem], nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status); // Síncrona
-					else {
-						MPI_Irecv(&nuevaPoblacion[p*nem], nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
-						MPI_Wait(&p_requests[rank], &status);
-					}
-				}
+				MPI_Gatherv(&subpoblacion, nem, MPI_individuo_type, &nuevaPoblacion, distribucion, desplazamientos, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
 				qsort(nuevaPoblacion, np * nem, sizeof(Individuo), comp_fitness);
 
-				for (int i = 0; i < nem; i++) {
-					subpoblacion[i] = nuevaPoblacion[i];
+				if (rank == PROCESO_MAESTRO) {
+					for (int i = 0; i < nem; i++)
+						subpoblacion[i] = nuevaPoblacion[i];
 				}
-
-				for (int p = 1; p < np; p++) {
-					if (MODO == 0)
-						MPI_Send(&nuevaPoblacion, nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD); // Síncrona
+				MPI_Bcast(subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
+			}
+			else {
+				if (rank != PROCESO_MAESTRO) {
+					// nodos hijos
+					if (MODO == 0) {
+						MPI_Send(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD); // Síncrona
+					}
 					else {
-						MPI_Isend(&nuevaPoblacion, nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+						MPI_Isend(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 						MPI_Wait(&p_requests[rank], &status);
+					}
+					
+					if (MODO == 0)
+						MPI_Recv(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &status); // Síncrona
+					else {
+						MPI_Irecv(&subpoblacion, nem, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+						MPI_Wait(&p_requests[rank], &status);
+					}
+
+				} else {
+					// nodo maestro
+					Individuo nuevaPoblacion[np*nem];
+
+					// añadir individuos propios
+					for (int i = 0; i < nem; i++) {
+						nuevaPoblacion[i] = subpoblacion[i];
+					}
+					// añadir el resto de individuos
+					for (int p = 1; p < np; p++) {
+						if (MODO == 0)
+							MPI_Recv(&nuevaPoblacion[p*nem], nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status); // Síncrona
+						else {
+							MPI_Irecv(&nuevaPoblacion[p*nem], nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+							MPI_Wait(&p_requests[rank], &status);
+						}
+					}
+					qsort(nuevaPoblacion, np * nem, sizeof(Individuo), comp_fitness);
+
+					for (int i = 0; i < nem; i++) {
+						subpoblacion[i] = nuevaPoblacion[i];
+					}
+
+					for (int p = 1; p < np; p++) {
+						if (MODO == 0)
+							MPI_Send(&nuevaPoblacion, nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD); // Síncrona
+						else {
+							MPI_Isend(&nuevaPoblacion, nem, MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+							MPI_Wait(&p_requests[rank], &status);
+						}
 					}
 				}
 			}
 		}
   	}
 	// Recibir las poblaciones finales de los demás procesos
-	if (rank > 0) {
-		if (MODO == 0)
-			MPI_Send(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD); // Síncrona
-		else {
-			MPI_Isend(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
-			MPI_Wait(&p_requests[rank], &status);
-		}
-	} else {
-		// añadir individuos propios
-		for (int i = 0; i < tam; i++) {
-			poblacion[i] = subpoblacion[i];
-		}
-		// añadir el resto de individuos
-		for (int p = 1; p < np; p++) {
+	if (MODO == 2) {
+		MPI_Gatherv(&subpoblacion, tam, MPI_individuo_type, &poblacion, distribucion, desplazamientos, MPI_individuo_type, PROCESO_MAESTRO, MPI_COMM_WORLD);
+		qsort(poblacion, tam_pob, sizeof(Individuo), comp_fitness);
+	}
+	else {
+		if (rank != PROCESO_MAESTRO) {
 			if (MODO == 0)
-				MPI_Recv(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status); // Síncrona
+				MPI_Send(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD); // Síncrona
 			else {
-				MPI_Irecv(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+				MPI_Isend(&subpoblacion, tam, MPI_individuo_type, PROCESO_MAESTRO, TAG, MPI_COMM_WORLD, &p_requests[rank]);
 				MPI_Wait(&p_requests[rank], &status);
 			}
+		} else {
+			// añadir individuos propios
+			for (int i = 0; i < tam; i++) {
+				poblacion[i] = subpoblacion[i];
+			}
+			// añadir el resto de individuos
+			for (int p = 1; p < np; p++) {
+				if (MODO == 0)
+					MPI_Recv(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &status); // Síncrona
+				else {
+					MPI_Irecv(&poblacion[desplazamientos[p]], distribucion[p], MPI_individuo_type, p, TAG, MPI_COMM_WORLD, &p_requests[rank]);
+					MPI_Wait(&p_requests[rank], &status);
+				}
+			}
+			
+			qsort(poblacion, tam_pob, sizeof(Individuo), comp_fitness);
 		}
-		
-		qsort(poblacion, tam_pob, sizeof(Individuo), comp_fitness);
 	}
 
 	MPI_Finalize();
-	if (rank != 0)
+	if (rank != PROCESO_MAESTRO)
 		exit(EXIT_SUCCESS);
 	// ordena el array solucion
 	qsort(poblacion[0].array_int, m, sizeof(int), comp_array_int);
@@ -406,5 +428,4 @@ void fitness(const double *d, Individuo *individuo, int n, int m)
 		}
 	}
 	individuo->fitness = fitness;
-	
 }

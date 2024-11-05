@@ -2,7 +2,7 @@
 #define _MH
 	
 	typedef struct {
-		int array_int[400];
+		int array_int[1000];
 		double fitness;
 	} Individuo;
 	

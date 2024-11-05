@@ -1,0 +1,44 @@
+Generacion 0 - Fitness = 159954.00 - 
+Generacion 1 - Fitness = 159954.00 - 
+Generacion 2 - Fitness = 159954.00 - 
+Generacion 3 - Fitness = 161500.00 - 
+Generacion 4 - Fitness = 161530.00 - 
+Generacion 5 - Fitness = 161530.00 - 
+Generacion 6 - Fitness = 161530.00 - 
+Generacion 7 - Fitness = 161530.00 - 
+Generacion 8 - Fitness = 161675.00 - 
+Generacion 9 - Fitness = 161675.00 - 
+Generacion 10 - Fitness = 162463.00 - 
+Generacion 11 - Fitness = 163384.00 - 
+Generacion 12 - Fitness = 163384.00 - 
+Generacion 13 - Fitness = 163384.00 - 
+Generacion 14 - Fitness = 163384.00 - 
+Generacion 15 - Fitness = 163384.00 - 
+Generacion 16 - Fitness = 163384.00 - 
+Generacion 17 - Fitness = 163384.00 - 
+Generacion 18 - Fitness = 163384.00 - 
+Generacion 19 - Fitness = 163384.00 - 
+Generacion 20 - Fitness = 163384.00 - 
+Generacion 21 - Fitness = 163384.00 - 
+Generacion 22 - Fitness = 163384.00 - 
+Generacion 23 - Fitness = 163384.00 - 
+Generacion 24 - Fitness = 163384.00 - 
+Generacion 25 - Fitness = 163384.00 - 
+Generacion 26 - Fitness = 163384.00 - 
+Generacion 27 - Fitness = 163384.00 - 
+Generacion 28 - Fitness = 163453.00 - 
+Generacion 29 - Fitness = 163453.00 - 
+Generacion 30 - Fitness = 163453.00 - 
+Generacion 31 - Fitness = 163453.00 - 
+Generacion 32 - Fitness = 163453.00 - 
+Generacion 33 - Fitness = 163886.00 - 
+Generacion 34 - Fitness = 163886.00 - 
+Generacion 35 - Fitness = 163886.00 - 
+Generacion 36 - Fitness = 163886.00 - 
+Generacion 37 - Fitness = 163886.00 - 
+Generacion 38 - Fitness = 163886.00 - 
+Generacion 39 - Fitness = 164117.00 - 
+Execution Time: 0.05 sec
+
+Solution: 2 4 7 14 15 17 20 21 26 33 37 39 40 44 45 51 52 55 58 59 61 62 65 66 68 70 71 72 73 74 77 82 84 85 86 88 94 100 102 104 106 110 112 120 122 123 125 126 127 129 130 134 137 138 139 140 142 145 148 154 155 156 158 161 162 163 170 171 175 177 178 179 180 182 184 186 187 195 197 199 
+Distance: 164632.00
